@@ -67,28 +67,33 @@ def getValidateDate(in_date, in_date_freq, in_date_type):
 
     for i in range(getDateRange(in_date, in_date_freq)):
         res = dayInRange
+        isValid = False
         if in_date_type == "none":
             res = dayInRange
+            isValid = True
         elif in_date_type == "weekday":
             if dayInRange.isoweekday() < 6:
                 res = dayInRange
+                isValid = True
             # else:
             #     res = dayInRange + timedelta(days=((1 + 7 - dayInRange.isoweekday())%7))
         elif in_date_type == "weekend":
             if dayInRange.isoweekday() > 5:
                 res = dayInRange
+                isValid = True
             # else:
             #     res = dayInRange + timedelta(days=((6 + 7 - dayInRange.isoweekday())%7))
         else:
             raise ValueError("|-> utils -> getValidateDate: Invalid date type.")
 
-        printMsgForTest("Valid day: " + msgOfDate(res))
+        if isValid:
+            printMsgForTest("Valid day: " + msgOfDate(res))
 
-        for i_team in range(ct.NUM_TEAM):
-            if (isUrlExist(getUrlOfDateTeam(res, i_team+1))):
-                return res
+            for i_team in range(ct.NUM_TEAM):
+                if (isUrlExist(getUrlOfDateTeam(res, i_team+1))):
+                    return res
 
-        printMsgForTest("In Valid dURL: " + getUrlOfDateTeam(res, 1))
+            printMsgForTest("In Valid dURL: " + getUrlOfDateTeam(res, 1))
 
         dayInRange = dayInRange + timedelta(days=1)
 
