@@ -65,7 +65,12 @@ def testForProcessDataset():
     # tpd.testForGetCSV()
     # --- 11.078333616256714 seconds ---
     # 8. CheckConnectivity
-    tpd.testForCheckConnectivity()
+    # tpd.testForCheckConnectivity()
+    # --- 98.04251027107239 seconds ---
+
+    # --- To be checked ---
+    TODO = True
+
 if __name__ == "__main__":
     start_time = time.time()
 
