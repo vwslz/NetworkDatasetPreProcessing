@@ -6,6 +6,11 @@ import wget
 from bs4 import BeautifulSoup
 import requests
 import pickle
+import gzip
+import shutil
+import matplotlib.pyplot as plt
+import numpy as np
+import networkx as nx
 
 '''
 Datetime Manipulation
@@ -125,6 +130,13 @@ def copyDirectory(dir_from, dir_to):
     if not os.path.isdir(dir_to):
         copytree(dir_from, dir_to)
 
+def isDirExist(str_date, dir_from):
+    for i_team in range(ct.NUM_TEAM):
+        dir_downloaded = getDirForCycle(str_date, getDirForYear(str_date, getDirForTeam(i_team, dir_from)))
+        if os.path.isdir(dir_downloaded):
+            return True
+    return False
+
 def isUrlExist(in_url):
     request = requests.get(in_url)
     if request.status_code == 200:
@@ -225,13 +237,14 @@ str dir_to: the directory to save the dateset
 @Out:
 boolean: return true after succeed
 '''
-def copyOfDateIteam(in_YYYYMMDD, in_team, dir_from, dir_to):
-    dir_to_for_team = getDirForTeam(in_team, dir_to)
-    mkdir(dir_to_for_team)
-    dir_to_for_year = getDirForYear(in_YYYYMMDD, dir_to_for_team)
-    mkdir(dir_to_for_year)
-    dir_to_for_cycle = getDirForYear(in_YYYYMMDD, dir_to_for_year)
-    copyDirectory(dir_from, dir_to_for_cycle)
+def copyOfDateIteam(in_YYYYMMDD, i_team, dir_from, dir_to):
+    if os.path.isdir(dir_from):
+        dir_to_for_team = getDirForTeam(i_team, dir_to)
+        mkdir(dir_to_for_team)
+        dir_to_for_year = getDirForYear(in_YYYYMMDD, dir_to_for_team)
+        mkdir(dir_to_for_year)
+        dir_to_for_cycle = getDirForCycle(in_YYYYMMDD, dir_to_for_year)
+        copyDirectory(dir_from, dir_to_for_cycle)
 
 '''
 File Manipulation
@@ -246,3 +259,55 @@ def pickleToFile(filename):
     res = pickle.load(infile)
     infile.close()
     return res
+
+def upzipFile(dir_from, dir_to):
+    if not (os.path.isfile(dir_to)):
+        with gzip.open(dir_from, 'rb') as f_in:
+            with open(dir_to, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+
+def drawHist(x, x_label, y_label, title, filename_to):
+    plt.rect=[10, 8]
+    plt.figure(figsize=(8, 6))
+    plt.hist(x, bins=100, bottom=0.1, label=x_label)
+    plt.xlabel(x_label)
+    plt.yscale("log")
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.grid(True)
+    plt.legend()
+
+    plt.savefig(filename_to, bbox_inches='tight', pad_inches = 0)
+    # plt.show()
+    return plt
+
+def drawHists(xs, x_label, y_label, title, filename_to):
+    plt.rect=[12, 9]
+    plt.figure(figsize=(8, 6))
+    for idx, x in enumerate(xs):
+        plt.hist(np.log10(x), bins=100, bottom=0.1, alpha=0.1, label="Month " + str(idx+1))
+    plt.xlabel(x_label)
+    # plt.yscale("log")
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.grid(True)
+    plt.legend()
+
+    plt.savefig(filename_to, bbox_inches='tight', pad_inches = 0)
+    # plt.show()
+    return plt
+
+def get_G(df_G):
+    G = {}
+    for i in df_G.ts.unique():
+        G[int(i)] = nx.Graph()
+
+    for index, row in df_G.iterrows():
+        G_iter = G[int(row['ts'])]
+        if not row['u'] in G_iter.nodes:
+            G_iter.add_node(int(row['u']))
+        if not row['i'] in G_iter.nodes:
+            G_iter.add_node(int(row['i']))
+        G_iter.add_edge(int(row['u']), int(row['i']), weight = np.float64(row['rtt']))
+
+    return G

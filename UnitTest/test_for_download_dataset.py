@@ -11,23 +11,84 @@ import pickle
     # @Output
     # ------------------------------
 
-def testForGetActionsForDates():
-    datesWithActions = {}
-    dir_downloaded = ct.DIR_DOWNLOADED
-    dd.getActionsForDates(datesWithActions, dir_downloaded)
+def testForMapKey():
+    dict_ip = ut.pickleToFile("D:\\Cache\\dict_ip.pkl")
 
+    dir_from = "D:\\dataset_monthly_weekday_ip\\"
+    dir_to = "D:\\dataset_monthly_weekday_with_loop\\"
+
+    res = dd.mapKey(dict_ip, dir_from, dir_to)
+    print(res)
+    return res
+
+def testForReadWarts():
+    dates = ut.pickleToFile("D:\\Cache\\dates.pkl")
+    dir_from = "D:\\dataset_monthly_weekday_raw\\"
+    dir_to = "D:\\dataset_monthly_weekday_ip\\"
+
+    res = dd.readWarts(dates, dir_from, dir_to)
+    print(len(res))
+    return res
+    # ------------------------------
+    # Test Case 1
+    # ------------------------------
+    # @Input
+    # datesWithActions = ut.pickleToFile("D:\\Cache\\dic_dates_monthly_weekday_62.pkl")
+    # dir_from = "D:\\prob_weekday_raw\\"
+    # dd.getActionsForDates(datesWithActions, dir_from)
+    # ------------------------------
+    # @Output
+    # {'20180801': 'C', '20180702': 'C', '20180601': 'C', '20180501': 'C', '20180402': 'C', '20180301': 'C', '20180201': 'C', '20180101': 'C', '20171201': 'C', '20171101': 'C', '20171002': 'C', '20170904': 'C', '20170801': 'C', '20170703': 'C', '20170601': 'C', '20170501': 'C', '20170403': 'C', '20170301': 'C', '20170201': 'C', '20170102': 'C', '20161201': 'C', '20161101': 'C', '20161003': 'C', '20160901': 'C', '20160801': 'C', '20160704': 'C', '20160601': 'C', '20160502': 'C', '20160401': 'C', '20160301': 'C', '20160201': 'C', '20160101': 'C', '20151201': 'C', '20151102': 'C', '20151001': 'C', '20150901': 'C', '20150803': 'C', '20150701': 'C', '20150601': 'C', '20150501': 'C', '20150401': 'C', '20150302': 'C', '20150202': 'C', '20150101': 'C', '20141201': 'C', '20141103': 'C', '20141001': 'C', '20140912': 'C', '20140801': 'C', '20140701': 'C', '20140602': 'C', '20140501': 'C', '20140402': 'C', '20140303': 'C', '20140203': 'C', '20140101': 'C', '20131202': 'C', '20131101': 'C', '20131001': 'C', '20130902': 'C', '20130801': 'C', '20130701': 'C'}
+    # ------------------------------
+
+
+def testForUnzip():
+    # dict_dates = ut.pickleToFile("D:\\Cache\\dic_dates_monthly_weekday_62_updated.pkl")
+    # dates = sorted(dict_dates.keys())
+    # ut.fileToPickle("D:\\Cache\\dates.pkl", dates)
+
+    dates = ut.pickleToFile("D:\\Cache\\dates.pkl")
+    dir_from = "D:\\prob_monthly_weekday\\"
+    dir_to = "D:\\dataset_monthly_weekday_raw\\"
+    res = dd.upzip(dates, dir_from, dir_to)
+    print(res)
+
+def testForGetActionsForDates():
+    datesWithActions = ut.pickleToFile("D:\\Cache\\dic_dates_monthly_weekday_62.pkl")
+    dir_from = "D:\\prob_weekday_raw\\"
+
+    res = dd.getActionsForDates(datesWithActions, dir_from)
+    print(res)
+    return res
+    # ------------------------------
+    # Test Case 1
+    # ------------------------------
+    # @Input
+    # datesWithActions = ut.pickleToFile("D:\\Cache\\dic_dates_monthly_weekday_62.pkl")
+    # dir_from = "D:\\prob_weekday_raw\\"
+    # dd.getActionsForDates(datesWithActions, dir_from)
+    # ------------------------------
+    # @Output
+    # {'20180801': 'C', '20180702': 'C', '20180601': 'C', '20180501': 'C', '20180402': 'C', '20180301': 'C', '20180201': 'C', '20180101': 'C', '20171201': 'C', '20171101': 'C', '20171002': 'C', '20170904': 'C', '20170801': 'C', '20170703': 'C', '20170601': 'C', '20170501': 'C', '20170403': 'C', '20170301': 'C', '20170201': 'C', '20170102': 'C', '20161201': 'C', '20161101': 'C', '20161003': 'C', '20160901': 'C', '20160801': 'C', '20160704': 'C', '20160601': 'C', '20160502': 'C', '20160401': 'C', '20160301': 'C', '20160201': 'C', '20160101': 'C', '20151201': 'C', '20151102': 'C', '20151001': 'C', '20150901': 'C', '20150803': 'C', '20150701': 'C', '20150601': 'C', '20150501': 'C', '20150401': 'C', '20150302': 'C', '20150202': 'C', '20150101': 'C', '20141201': 'C', '20141103': 'C', '20141001': 'C', '20140912': 'C', '20140801': 'C', '20140701': 'C', '20140602': 'C', '20140501': 'C', '20140402': 'C', '20140303': 'C', '20140203': 'C', '20140101': 'C', '20131202': 'C', '20131101': 'C', '20131001': 'C', '20130902': 'C', '20130801': 'C', '20130701': 'C'}
+    # ------------------------------
 
 def testForCollectDatasetByDates():
-    in_YYYYMMDD = "20180831"
-    in_num_dates = 62
-    in_date_freq = "monthly"
-    in_date_type = "weekday"
-
-    in_dates_with_action = dd.getValidDates(in_YYYYMMDD, in_num_dates, in_date_freq, in_date_type)
-
-
-    dir_from = ct.DIR_DOWNLOADED
-    dir_to = ct.DIR_TO
+    dict_dates = ut.pickleToFile("D:\\Cache\\dic_dates_monthly_weekday_62_updated.pkl")
+    dir_from = "D:\\prob_weekday_raw\\"
+    dir_to = "D:\\prob_monthly_weekday\\"
+    res = dd.collectDatasetByDates(dict_dates, dir_from, dir_to)
+    print(res)
+    # ------------------------------
+    # Test Case 1
+    # ------------------------------
+    # @Input
+    # dict_dates = ut.pickleToFile("D:\\Cache\\dic_dates_monthly_weekday_62_updated.pkl")\
+    # dir_from = "D:\\prob_weekday_raw\\"
+    # dir_to = "D:\\prob_monthly_weekday\\"
+    # ------------------------------
+    # @Output
+    #
+    # ------------------------------
 
 def testForDownloadDatasetGetValidDates():
     in_YYYYMMDD = "20180831"

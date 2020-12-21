@@ -9,6 +9,17 @@ import utils as ut
     # @Output
     # ------------------------------
 
+def testForUnzip():
+    # dict_dates = ut.pickleToFile("D:\\Cache\\dic_dates_monthly_weekday_62_updated.pkl")
+    # dates = sorted(dict_dates.keys())
+    # ut.fileToPickle("D:\\Cache\\dates.pkl", dates)
+
+    dates = ut.pickleToFile("D:\\Cache\\dates.pkl")
+    dir_from = "D:\\prob_monthly_weekday\\"
+    dir_to = "D:\\dataset_monthly_weekday\\"
+    res = ut.upzip(dates, dir_from, dir_to)
+    print(res)
+
 def testForIsUrlExist():
     id_team = 1
     str_YYYYMMDD = '20150121'
