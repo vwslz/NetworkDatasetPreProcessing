@@ -44,10 +44,10 @@ Check if a date is downloaded. Change action from D to C if True.
 dict in_dates_with_action {date, action}: diction with keys of required dates and value of action.
 str in_dir_downloaded: local address of downloaded dates. 
 '''
-def getActionsForDates(in_dates_with_action, in_dir_from):
+def getActionsForDates(in_dates_dict, dir_from):
     res = {}
-    for str_date in in_dates_with_action:
-        if ut.isDirExist(str_date, in_dir_from):
+    for str_date in in_dates_dict:
+        if ut.isDirExist(str_date, dir_from):
             res[str_date] = "C"
         else:
             res[str_date] = "D"
@@ -60,17 +60,17 @@ dict in_dates_with_action {date, action}: diction with keys of required dates an
 str dir_from: directory to copy from
 str dir_to: directory to copy to
 @Out:
-boolean indicates whether success or not.
+list of string: sorted dates
 '''
-def collectDatasetByDates(in_dates_with_action, dir_from, dir_to):
-    for str_date in in_dates_with_action:
+def collectDatasetByDates(in_dates_dict, dir_from, dir_to):
+    for str_date in in_dates_dict:
         for i_team in range(3):
             dir_from_date = ut.getDirForCycle(str_date, ut.getDirForYear(str_date, ut.getDirForTeam(i_team, dir_from)))
-            if in_dates_with_action[str_date] == "C":
+            if in_dates_dict[str_date] == "C":
                 ut.copyOfDateIteam(str_date, i_team, dir_from_date, dir_to)
-            elif in_dates_with_action[str_date] == "D":
+            elif in_dates_dict[str_date] == "D":
                 ut.downloadOfDateTeam(str_date, i_team, dir_to)
-    return True
+    return sorted(in_dates_dict.keys())
 
 '''
 Unzip the raw dataset.
@@ -81,9 +81,9 @@ str dir_to: directory to unzip to
 @Out:
 boolean indicates whether success or not
 '''
-def upzip(dates, dir_from, dir_to):
+def unzip(in_dates, dir_from, dir_to):
     # Create directories
-    for str_date in dates:
+    for str_date in in_dates:
         for i_team in range(3):
             dir_to_date = ut.getDirForCycle(str_date, ut.getDirForYear(str_date, ut.getDirForTeam(i_team, dir_from)))
 
@@ -112,10 +112,10 @@ str dir_to: directory to save dataframe
 @Out: 
 dictionary of ip address to map to indexes.
 '''
-def readWarts(dates, dir_from, dir_to):
+def readWarts(in_dates, dir_from, dir_to):
     set_ip = set()
     df_columns = ["IP_SRC", "IP_DST", "RTT"]
-    for str_date in dates:
+    for str_date in in_dates:
         for i_team in range(3):
             dir_from_file = dir_from + "\\team-" + str(i_team+1) + "\\" + str_date[0:4] + "\\cycle-" + str_date
             dir_to_file = dir_to + "\\" + str_date + "_" + str(i_team+1) +".pkl"

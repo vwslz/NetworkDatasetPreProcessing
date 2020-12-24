@@ -50,7 +50,7 @@ def testForUnzip():
     dates = ut.pickleToFile("D:\\Cache\\dates.pkl")
     dir_from = "D:\\prob_monthly_weekday\\"
     dir_to = "D:\\dataset_monthly_weekday_raw\\"
-    res = dd.upzip(dates, dir_from, dir_to)
+    res = dd.unzip(dates, dir_from, dir_to)
     print(res)
 
 def testForGetActionsForDates():

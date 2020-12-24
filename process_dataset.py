@@ -41,7 +41,7 @@ str filename_to: file to save the node frequency
 @Out: 
 dataframe: column node, timestamp, frequency
 '''
-def getNodeFreq(in_dates, dir_from, filename_to):
+def getNodeFreq(in_dates, dir_from, dir_to):
     list_of_df = []
 
     for str_date in in_dates:
@@ -61,7 +61,7 @@ def getNodeFreq(in_dates, dir_from, filename_to):
         list_of_df.append(df)
 
     res = pd.concat(list_of_df, ignore_index=True)
-    res.to_pickle(filename_to)
+    res.to_pickle(dir_to + "node_freq.pkl")
     return res
 
 '''
@@ -186,11 +186,11 @@ Get subset with median of filtered edges
 list in_dates: sorted dictionary in_dates_with_action's key
 str dir_from: directory to read subset with nodes filtered
 str dir_to: directory to save the subset with median of filtered edges
-threshhold_timeout_lower, threshhold_timeout_upper, threshhold_edge_freq
+threshold_timeout_lower, threshold_timeout_upper, threshold_edge_freq
 @Out: 
 boolean: whether success or not
 '''
-def getMedianWithinThreshhold(in_dates, dir_from, dir_to, threshhold_timeout_lower, threshhold_timeout_upper, threshhold_edge_freq):
+def getMedianWithinThreshhold(in_dates, dir_from, dir_to, threshold_timeout_lower, threshold_timeout_upper, threshold_edge_freq):
     for str_date in in_dates:
         filename_from = os.path.join(dir_from, str_date + ".pkl")
         filename_to = os.path.join(dir_to, str_date + ".pkl")
@@ -204,7 +204,7 @@ def getMedianWithinThreshhold(in_dates, dir_from, dir_to, threshhold_timeout_low
             df_ordered['IP_DST'] = df_ori[['IP_SRC', 'IP_DST']].max(axis=1)
 
             df_ordered['size'] = df_ordered.groupby(['IP_SRC', 'IP_DST']).transform(np.size)
-            df_ordered = df_ordered[(df_ordered['size'] > threshhold_edge_freq) & (df_ordered.RTT > threshhold_timeout_lower) & (df_ordered.RTT < threshhold_timeout_upper)]
+            df_ordered = df_ordered[(df_ordered['size'] > threshold_edge_freq) & (df_ordered.RTT > threshold_timeout_lower) & (df_ordered.RTT < threshold_timeout_upper)]
             msg = msg + str(len(df_ordered)) + " -> "
 
             df_ordered_m = df_ordered.groupby(['IP_SRC', 'IP_DST'], as_index=False).median()
@@ -274,7 +274,7 @@ def getCSV(in_dates, dir_from, dir_to, in_filename):
     df = getReindexedDF(df)
     filename_to = os.path.join(dir_to, in_filename)
     df.to_csv(filename_to, encoding='utf-8', index=False)
-
+    return df
 '''
 Print connectivity of given dataset
 @In:

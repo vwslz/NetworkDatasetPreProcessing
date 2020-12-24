@@ -16,9 +16,9 @@ def testForGetRidOfSelfLoop():
 def testForGetNodeFreq():
     dates = ut.pickleToFile("D:\\Cache\\dates.pkl")
     dir_from = "D:\\dataset_monthly_weekday\\"
-    filename_to = "D:\\Cache\\node_freq.pkl"
+    dir_to = "D:\\cache\\"
 
-    res = pd.getNodeFreq(dates, dir_from, filename_to)
+    res = pd.getNodeFreq(dates, dir_from, dir_to)
     print(res)
     return res
 
@@ -109,7 +109,7 @@ def testForGetCSV():
     filename_to = "network_monthly_weekday.csv"
 
     res = pd.getCSV(dates, dir_from, dir_to, filename_to)
-    print(res)
+    print(len(res))
     return res
 
 def testForCheckConnectivity():
