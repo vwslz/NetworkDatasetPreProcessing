@@ -44,6 +44,9 @@ def getPreviousDate(in_date, in_date_freq):
     res = res - timedelta(days=1)
     return res
 
+def getNextDate(in_date):
+    return in_date + timedelta(days=1)
+
 def getDateRange(in_date, in_date_freq):
     if in_date_freq == "daily":
         res = 1
@@ -155,9 +158,9 @@ boolean: return true after succeed
 '''
 def downloadOfDateTeam(in_YYYYMMDD, in_team, dir_to):
     res = False
-    folder_for_team = 'team-' + str(in_team) + '/'
-    url_for_team = ct.URL_TO_DOWNLOAD + folder_for_team
-    path_for_team = dir_to + folder_for_team
+    folder_for_team = 'team-' + str(in_team+1)
+    url_for_team = ct.URL_TO_DOWNLOAD + folder_for_team + '/'
+    path_for_team = os.path.join(dir_to, folder_for_team)
 
     page_for_team = requests.get(url_for_team)
     data_for_team = page_for_team.text
@@ -181,7 +184,7 @@ def downloadOfDateTeam(in_YYYYMMDD, in_team, dir_to):
             continue
 
         url_for_year = url_for_team + folder_for_year
-        path_for_year = path_for_team + folder_for_year
+        path_for_year = os.path.join(path_for_team, folder_for_year[:-1])
 
         page_for_year = requests.get(url_for_year)
         data_for_year = page_for_year.text
@@ -198,13 +201,13 @@ def downloadOfDateTeam(in_YYYYMMDD, in_team, dir_to):
                 os.mkdir(path_for_year)
 
         for folder_for_cycle in links_for_cycle:
-            if folder_for_cycle[-9:-1] != in_YYYYMMDD[0:4]:
+            if folder_for_cycle[-9:-1] != in_YYYYMMDD:
                 continue
             else:
-                printMsgForTest("date is: " + in_YYYYMMDD[0:4])
+                printMsgForTest("date is: " + in_YYYYMMDD)
 
             url_for_cycle = url_for_year + folder_for_cycle
-            path_for_cycle = path_for_year + folder_for_cycle
+            path_for_cycle = os.path.join(path_for_year, folder_for_cycle[:-1])
 
             page_for_cycle = requests.get(url_for_cycle)
             data_for_cycle = page_for_cycle.text
@@ -223,7 +226,7 @@ def downloadOfDateTeam(in_YYYYMMDD, in_team, dir_to):
             for file in links_for_file:
                 url_for_file = url_for_cycle + file
                 if '-us' in file:
-                    if not os.path.exists(path_for_cycle + file):
+                    if not os.path.exists(os.path.join(path_for_cycle, file)):
                         filename = wget.download(url_for_file, path_for_cycle)
                     res = True
     return res
@@ -281,11 +284,11 @@ def drawHist(x, x_label, y_label, title, filename_to):
     # plt.show()
     return plt
 
-def drawHists(xs, x_label, y_label, title, filename_to):
+def drawHists(xs, x_label, y_label, group_label, title, filename_to):
     plt.rect=[12, 9]
     plt.figure(figsize=(8, 6))
     for idx, x in enumerate(xs):
-        plt.hist(np.log10(x), bins=100, bottom=0.1, alpha=0.1, label="Month " + str(idx+1))
+        plt.hist(np.log10(x), bins=100, bottom=0.1, alpha=0.1, label=group_label + " " + str(idx+1))
     plt.xlabel(x_label)
     # plt.yscale("log")
     plt.ylabel(y_label)

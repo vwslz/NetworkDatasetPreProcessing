@@ -79,19 +79,21 @@ serie: nodes
 def getNodeSet(in_min_freq, in_min_month, in_proportion, dir_from, dir_to):
     filename_to = os.path.join(dir_to, "nodeset_" + str(in_proportion) + ".pkl")
 
-    nodes_freq = pd.read_pickle(os.path.join(dir_from, "node_freq.pkl"))
-    msg_threshold = "Filter with threshold: " + str(len(nodes_freq))
-    nodes_freq = nodes_freq.groupby('node').filter(lambda x: x.freq.sum() > in_min_freq and len(x) > in_min_month)
-    msg_threshold = msg_threshold + " -> " + str(len(nodes_freq))
-    nodes_freq.to_pickle(os.path.join(dir_to, "nodeset_" + str(in_proportion) + "_filtered.pkl"))
-    ut.printMsgForTest(msg_threshold)
+    # nodes_freq = pd.read_pickle(os.path.join(dir_from, "node_freq.pkl"))
+    # msg_threshold = "Filter with threshold: " + str(len(nodes_freq))
+    # nodes_freq = nodes_freq.groupby('node').filter(lambda x: x.freq.sum() > in_min_freq and len(x) > in_min_month)
+    # msg_threshold = msg_threshold + " -> " + str(len(nodes_freq))
+    # nodes_freq.to_pickle(os.path.join(dir_to, "nodeset_filtered.pkl"))
+    # ut.printMsgForTest(msg_threshold)
 
+    nodes_freq = pd.read_pickle(os.path.join(dir_to, "nodeset_filtered.pkl"))
     nodes_top = nodes_freq.groupby(['node'])['freq'].agg('sum') # Return a serie
     nodes_top = nodes_top.sort_values(ascending=False)
     msg_proportion = "Filter with percentage: " + str(len(nodes_top))
     nodes_top = nodes_top[:int(in_proportion * (len(nodes_top)))]
-    msg_proportion = msg_proportion + str(len(msg_proportion))
-    nodes_top.to_pickle(filename_to)
+    msg_proportion = msg_proportion + " -> " + str(len(msg_proportion))
+    nodes_top = nodes_top.index
+    ut.fileToPickle(filename_to, nodes_top)
 
     ut.printMsgForTest(msg_proportion)
 
@@ -135,20 +137,20 @@ str dir_to: directory to save the plot
 int list: [lower threshold, upper threshold]
 '''
 def getThresholdRTTForYear(in_dates, in_year, dir_from, dir_to):
-    filename_to = os.path.join(dir_to, "rtts_" + in_year + ".pkl")
-    # list_of_rtt = []
-    #
-    # for str_date in in_dates:
-    #     if str_date[0:4] == in_year:
-    #         df = pd.read_pickle(os.path.join(dir_from, str_date)+".pkl")
-    #         list_of_rtt.append(df.RTT)
-    #         ut.printMsgForTest(str_date)
-    #
-    # rtts = pd.concat(list_of_rtt)
-    # # log 10
-    # rtts.to_pickle(filename_to)
+    filename_to = os.path.join(dir_to, "rtts_" + str(in_year) + ".pkl")
+    list_of_rtt = []
 
-    rtts = pd.read_pickle(filename_to)
+    for str_date in in_dates:
+        if str_date[0:4] == in_year:
+            df = pd.read_pickle(os.path.join(dir_from, str_date)+".pkl")
+            list_of_rtt.append(df.RTT)
+            ut.printMsgForTest(str_date)
+
+    rtts = pd.concat(list_of_rtt)
+    # log 10
+    rtts.to_pickle(filename_to)
+
+    # rtts = pd.read_pickle(filename_to)
 
     ut.drawHist(np.log10(rtts), "RTT(log 10)", "Frequency", "RTT distribution", os.path. join(dir_to, "distribution_rtt_" + in_year + ".pdf"))
     return True
@@ -164,7 +166,7 @@ str dir_to: directory to save the plot
 int: threshold of edge frequency
 '''
 def getThresholdRTTFreqOfYear(in_dates, in_year, dir_from, dir_to):
-    filename_to = os.path.join(dir_to, "rtts_freq_" + in_year + ".pkl")
+    filename_to = os.path.join(dir_to, "rtts_freq_" + str(in_year) + ".pkl")
     edges_freq_of_month = []
     for str_date in in_dates:
         if str_date[0:4] == in_year:
@@ -176,7 +178,67 @@ def getThresholdRTTFreqOfYear(in_dates, in_year, dir_from, dir_to):
 
     # edges_freq_of_month = ut.pickleToFile(filename_to)
 
-    ut.drawHists(edges_freq_of_month, 'Frequency of edge', 'Frequency of edge frequency', "Edge Frequency distribution", os.path. join(dir_to, "distribution_edge_frequency_" + in_year + ".pdf"))
+    ut.drawHists(edges_freq_of_month, 'Frequency of edge', 'Frequency of edge frequency', "Month", "Edge Frequency distribution", os.path. join(dir_to, "distribution_edge_frequency_" + in_year + ".pdf"))
+
+    return True
+
+'''
+Get plot of edge distribution to determine the lower and upper threshold for given year
+@In:
+str in_date_begin: the first date of required week
+str dir_from: directory to read original dataset
+str dir_to: directory to save the plot
+@Out:
+int list: [lower threshold, upper threshold]
+'''
+def getThresholdRTTForWeek(in_date_begin, dir_from, dir_to):
+    filename_to = os.path.join(dir_to, "rtts_week_of_" + in_date_begin + ".pkl")
+    list_of_rtt = []
+    in_date = ut.getDateFromYYYYMMDD(in_date_begin)
+
+    for i in range(7):
+        filename_from = os.path.join(dir_from, ut.getYYYYMMDDFromDate(in_date)+".pkl")
+        if os.path.isfile(filename_from):
+            df = pd.read_pickle(filename_from)
+            list_of_rtt.append(df.RTT)
+            ut.printMsgForTest(filename_from)
+            in_date = ut.getNextDate(in_date)
+
+    rtts = pd.concat(list_of_rtt)
+    # log 10
+    rtts.to_pickle(filename_to)
+
+    # rtts = pd.read_pickle(filename_to)
+
+    ut.drawHist(np.log10(rtts), "RTT(log 10)", "Frequency", "RTT distribution", os.path. join(dir_to, "distribution_rtt_week_of_" + in_date_begin + ".pdf"))
+    return True
+
+'''
+Get plot of monthly edge frequency distribution to determine the lower and upper threshold
+@In:
+str in_date_begin: the first date of required week
+str dir_from: directory to read original dataset
+str dir_to: directory to save the plot
+@Out:
+int: threshold of edge frequency
+'''
+def getThresholdRTTFreqOfWeek(in_date_begin, dir_from, dir_to):
+    filename_to = os.path.join(dir_to, "rtts_freq_week_of_" + in_date_begin + ".pkl")
+    edges_freq_of_month = []
+    in_date = ut.getDateFromYYYYMMDD(in_date_begin)
+    for i in range(7):
+        filename_from = os.path.join(dir_from, ut.getYYYYMMDDFromDate(in_date)+".pkl")
+        if os.path.isfile(filename_from):
+            df = pd.read_pickle(filename_from)
+            edges_freq_of_month.append(df.groupby(by=['IP_SRC', 'IP_DST']).size())
+            ut.printMsgForTest(filename_from)
+            in_date = ut.getNextDate(in_date)
+
+    ut.fileToPickle(filename_to, edges_freq_of_month)
+
+    # edges_freq_of_month = ut.pickleToFile(filename_to)
+
+    ut.drawHists(edges_freq_of_month, 'Frequency of edge', 'Frequency of edge frequency', "Day", "Edge Frequency distribution", os.path. join(dir_to, "rtts_freq_week_of_" + in_date_begin + ".pdf"))
 
     return True
 

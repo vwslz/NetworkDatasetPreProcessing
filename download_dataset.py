@@ -66,10 +66,10 @@ def collectDatasetByDates(in_dates_dict, dir_from, dir_to):
     for str_date in in_dates_dict:
         for i_team in range(3):
             dir_from_date = ut.getDirForCycle(str_date, ut.getDirForYear(str_date, ut.getDirForTeam(i_team, dir_from)))
-            if in_dates_dict[str_date] == "C":
-                ut.copyOfDateIteam(str_date, i_team, dir_from_date, dir_to)
-            elif in_dates_dict[str_date] == "D":
-                ut.downloadOfDateTeam(str_date, i_team, dir_to)
+            if in_dates_dict[str_date] == "D":
+                ut.downloadOfDateTeam(str_date, i_team, dir_from)
+
+            ut.copyOfDateIteam(str_date, i_team, dir_from_date, dir_to)
     return sorted(in_dates_dict.keys())
 
 '''
@@ -97,7 +97,7 @@ def unzip(in_dates, dir_from, dir_to):
 
                 for filename in os.listdir(dir_to_date):
                     dir_from_upzip = os.path.join(dir_to_date, filename)
-                    dir_to_unzip = os.path.join(dir_to_for_cycle, filename)
+                    dir_to_unzip = os.path.join(dir_to_for_cycle, filename[:-3])
                     if os.path.isfile(dir_from_upzip) and (str_date in filename):
                         ut.upzipFile(dir_from_upzip, dir_to_unzip)
 
